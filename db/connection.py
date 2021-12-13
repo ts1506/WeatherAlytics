@@ -14,7 +14,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 import pandas as pd
-from privatekeys import config
+from .privatekeys import config
 
 def get_weatherData():
   """
