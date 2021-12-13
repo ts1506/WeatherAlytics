@@ -17,7 +17,7 @@ from dash import html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
-GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 5000)
+GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 10000)
 
 pd.options.plotting.backend = 'plotly'
 
@@ -26,7 +26,7 @@ app = dash.Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 app.title = "Weather Dashboard"
-app_color = {"graph_bg": "#082255", "graph_line": "#007ACE", "trace": "#42C4F7"}
+app_color = {"graph_bg": "#252729", "graph_line": "#008019", "trace": "#379C4B"}
 
 server = app.server
 
@@ -306,5 +306,5 @@ def gen_tempVsHumidity(interval, slider_value, auto_state):
     return dict(data=[trace], layout=layout)
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
