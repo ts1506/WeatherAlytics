@@ -11,8 +11,7 @@
 #   'raise_on_warnings': True,
 # }
 
-import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector import connect, errorcode, Error
 import pandas as pd
 from .privatekeys import config
 
@@ -23,7 +22,7 @@ def get_weatherData():
   """
 
   try:
-    cnx = mysql.connector.connect(**config)
+    cnx = connect(**config)
     cursor = cnx.cursor()
     cursor.execute("select * from weatherHistory")
     records = cursor.fetchall()
@@ -32,7 +31,7 @@ def get_weatherData():
     df.columns = cursor.column_names
     return df
 
-  except mysql.connector.Error as err:
+  except Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
       print("Something is wrong with your user name or password")
     elif err.errno == errorcode.ER_BAD_DB_ERROR:
@@ -49,7 +48,7 @@ def get_weatherData_byCount(n):
   """
 
   try:
-    cnx = mysql.connector.connect(**config)
+    cnx = connect(**config)
     cursor = cnx.cursor()
     cursor.execute("select * from weatherHistory order by id desc limit {}".format(n))
     records = cursor.fetchall()
@@ -58,7 +57,7 @@ def get_weatherData_byCount(n):
     df.columns = cursor.column_names
     return df
 
-  except mysql.connector.Error as err:
+  except Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
       print("Something is wrong with your user name or password")
     elif err.errno == errorcode.ER_BAD_DB_ERROR:
@@ -75,7 +74,7 @@ def get_weatherData_bySummary(summary):
   """
 
   try:
-    cnx = mysql.connector.connect(**config)
+    cnx = connect(**config)
     cursor = cnx.cursor()
     cursor.execute("select * from weatherHistory where summary={}".format(summary))
     records = cursor.fetchall()
@@ -84,7 +83,7 @@ def get_weatherData_bySummary(summary):
     df.columns = cursor.column_names
     return df
 
-  except mysql.connector.Error as err:
+  except Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
       print("Something is wrong with your user name or password")
     elif err.errno == errorcode.ER_BAD_DB_ERROR:
@@ -102,11 +101,11 @@ def add_weatherData(reading_time, summary, precip_type, temperature, apparent_te
   """
 
   try:
-    cnx = mysql.connector.connect(**config)
+    cnx = connect(**config)
     cursor = cnx.cursor()
     cursor.execute("INSERT INTO weatherHistory(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure) VALUES ({},{},{},{},{},{},{},{},{},{}".format(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure))
 
-  except mysql.connector.Error as err:
+  except Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
       print("Something is wrong with your user name or password")
     elif err.errno == errorcode.ER_BAD_DB_ERROR:
