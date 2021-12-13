@@ -93,3 +93,25 @@ def get_weatherData_bySummary(summary):
       print(err)
   else:
     cnx.close()
+
+def add_weatherData(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure):
+  """
+  Add weather data to the database
+  Input: reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure
+  Return Type: None
+  """
+
+  try:
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor()
+    cursor.execute("INSERT INTO weatherHistory(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure) VALUES ({},{},{},{},{},{},{},{},{},{}".format(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure))
+
+  except mysql.connector.Error as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+      print("Something is wrong with your user name or password")
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+      print("Database does not exist")
+    else:
+      print(err)
+  else:
+    cnx.close()
