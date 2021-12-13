@@ -1,1 +1,3 @@
 /db/privatekeys.py
+.DS_Store
+/db/__pycache__
