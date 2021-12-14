@@ -21,6 +21,17 @@ GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 10000)
 
 pd.options.plotting.backend = 'plotly'
 
+labeldict={
+    'reading_time': 'Reading Time',
+    'temperature': 'Temperature (C)',
+    'apparent_temperature': 'Apparent Temperature (C)',
+    'humidity': 'Humidity',
+    'wind_speed': 'Wind Speed (km/h)',
+    'wind_bearing': 'Wind Bearing',
+    'visibility': 'Visibility (km)',
+    'pressure': 'Pressure (hPA)',
+}
+
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
@@ -210,7 +221,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            [html.H6("USER DEFINED PLOT", className="graph__title")]
+                            [html.H6(id="userdeftext", className="graph__title")]
                         ),
                         dcc.Graph(
                             id="userdefplot",
@@ -235,6 +246,12 @@ app.layout = html.Div(
     ],
     className="app__container",
 )
+
+@app.callback(
+    Output("userdeftext", "children"), [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
+)
+def update_userdeftext(x_axis, y_axis):
+    return "{} VS {}".format(labeldict["{}".format(y_axis)],labeldict["{}".format(x_axis)])
 
 @app.callback(
     Output("userdefplot", "figure"), [Input("userdefplot-update", "n_intervals")], [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
@@ -266,11 +283,13 @@ def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
         font={"color": "#fff"},
         height=400,
         xaxis={
+            "title": labeldict["{}".format(x_axis)],
             "showline": True,
             "zeroline": False,
             "fixedrange": True,
         },
         yaxis={
+            "title": labeldict["{}".format(y_axis)],
             "showgrid": True,
             "showline": True,
             "fixedrange": True,
@@ -311,11 +330,13 @@ def gen_temperature(interval, slider_value, auto_state):
         font={"color": "#fff"},
         height=400,
         xaxis={
+            "title": "Reading Time",
             "showline": True,
             "zeroline": False,
             "fixedrange": True,
         },
         yaxis={
+            "title": "Temperature",
             "showgrid": True,
             "showline": True,
             "fixedrange": True,
@@ -356,11 +377,13 @@ def gen_apptempVsHumidity(interval, slider_value, auto_state):
         font={"color": "#fff"},
         height=400,
         xaxis={
+            "title": "Humidity",
             "showline": True,
             "zeroline": False,
             "fixedrange": True,
         },
         yaxis={
+            "title": "Apparent Temperature",
             "showgrid": True,
             "showline": True,
             "fixedrange": True,
@@ -401,11 +424,13 @@ def gen_tempVsHumidity(interval, slider_value, auto_state):
         font={"color": "#fff"},
         height=400,
         xaxis={
+            "title": "Humidity",
             "showline": True,
             "zeroline": False,
             "fixedrange": True,
         },
         yaxis={
+            "title": "Temperature",
             "showgrid": True,
             "showline": True,
             "fixedrange": True,
