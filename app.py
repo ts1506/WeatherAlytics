@@ -7,7 +7,7 @@ import requests
 from datetime import datetime
 import numpy as np
 from dataset.dataCleaning import cleanData
-from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount
+from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount, get_weatherData_byYear
 import os
 
 import dash
@@ -243,9 +243,142 @@ app.layout = html.Div(
             ],
             className="parameter_selector_content",
         ),
+        html.Div(
+            [
+            html.Div(
+                    [
+                        html.P(
+                            "Yearly Data",
+                            className="graph__title",
+                        ),
+                        html.P("Select Year", className="graph__title"),
+                        dcc.Dropdown(
+                            id="year-dropdown",
+                                options=[
+                                    {'label': '2006', 'value': '2006'},
+                                    {'label': '2007', 'value': '2007'},
+                                    {'label': '2008', 'value': '2008'},
+                                    {'label': '2009', 'value': '2009'},
+                                    {'label': '2010', 'value': '2010'},
+                                    {'label': '2011', 'value': '2011'},
+                                    {'label': '2012', 'value': '2012'},
+                                    {'label': '2013', 'value': '2013'},
+                                    {'label': '2014', 'value': '2014'},
+                                    {'label': '2015', 'value': '2015'},
+                                    {'label': '2016', 'value': '2016'},
+                                ],
+                                value='2006'
+                        ),
+                        html.P("X-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="x-axis-dropdown2",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='reading_time'
+                        ),
+                        html.P("Y-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="y-axis-dropdown2",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='temperature'
+                        ),
+                    ],
+                    className="three columns",
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            [html.H6(id="yeardatatext", className="graph__title")]
+                        ),
+                        dcc.Graph(
+                            id="yeardataplot",
+                            figure=dict(
+                                layout=dict(
+                                    plot_bgcolor=app_color["graph_bg"],
+                                    paper_bgcolor=app_color["graph_bg"],
+                                )
+                            ),
+                        ),
+                        dcc.Interval(
+                            id="yeardataplot-update",
+                            interval=int(GRAPH_INTERVAL),
+                            n_intervals=0,
+                        ),
+                    ],
+                    className="nine columns yeardataplot__container",
+                ),
+            ],
+            className="year_selector_content",
+        ),
     ],
     className="app__container",
 )
+
+@app.callback(
+    Output("yeardatatext", "children"), [Input("year-dropdown", "value")],
+)
+def update_yeardatatext(value):
+    return "Data for year {}".format(value)
+
+@app.callback(
+    Output("yeardataplot", "figure"), 
+    [Input("yeardataplot-update", "n_intervals")], 
+    [Input("year-dropdown", "value")], 
+    [Input("x-axis-dropdown2", "value")], 
+    [Input("y-axis-dropdown2", "value")],
+)
+def gen_yeardataplot(interval, value, x_axis, y_axis):
+    
+    df = get_weatherData_byYear(value)
+    df = cleanData(df)
+
+    trace = dict(
+        type="scatter",
+        y=df["{}".format(y_axis)],
+        x=df["{}".format(x_axis)],
+        line={"color": app_color["trace"]},
+        mode="markers",
+    )
+
+    layout = dict(
+        plot_bgcolor=app_color["graph_bg"],
+        paper_bgcolor=app_color["graph_bg"],
+        font={"color": "#fff"},
+        height=400,
+        xaxis={
+            "title": labeldict["{}".format(x_axis)],
+            "showline": True,
+            "zeroline": False,
+            "fixedrange": True,
+        },
+        yaxis={
+            "title": labeldict["{}".format(y_axis)],
+            "showgrid": True,
+            "showline": True,
+            "fixedrange": True,
+            "zeroline": False,
+            "gridcolor": app_color["graph_line"],
+        },
+    )
+
+    return dict(data=[trace], layout=layout)
 
 @app.callback(
     Output("userdeftext", "children"), [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
