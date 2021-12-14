@@ -27,3 +27,6 @@ WeatherAlytics is developed using Python with DASH and Plotly components. The fo
 - [MySQL](https://www.mysql.com) - Simple relational database
 - [Plotly](https://plotly.com) - Graphs, Diagrams and Low-Code DASH implementation
 - [pandas](https://pandas.pydata.org) - Data Analysis and Manipulation
+- [Google Colab](https://colab.research.google.com/) - Speedy ML model creation
+- [pickle](https://docs.python.org/3/library/pickle.html) - Easy serialization/deserialization for trained models
+- [scikit-learn](https://scikit-learn.org/stable/) - ML and Data Science package
