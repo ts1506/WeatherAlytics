@@ -104,7 +104,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            [html.H6("TEMPERATURE (CELSIUS)", className="graph__title")]
+                            [html.H6("Temperature (C) vs Reading Time", className="graph__title")]
                         ),
                         dcc.Graph(
                             id="temperature",
@@ -132,7 +132,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            [html.H6("APPARENT TEMPERATURE (CELSIUS) VS HUMIDITY", className="graph__title")]
+                            [html.H6("Apparent Temperature (C) vs Humidity", className="graph__title")]
                         ),
                         dcc.Graph(
                             id="apptempVsHumidity",
@@ -155,7 +155,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Div(
-                            [html.H6("TEMPERATURE (CELSIUS) VS HUMIDITY", className="graph__title")]
+                            [html.H6("Temperature (C) vs Humidity", className="graph__title")]
                         ),
                         dcc.Graph(
                             id="tempVsHumidity",
@@ -182,7 +182,7 @@ app.layout = html.Div(
             html.Div(
                     [
                         html.P(
-                            "SELECT AXES BELOW",
+                            "User Defined Plot",
                             className="graph__title",
                         ),
                         html.P("X-Axis", className="graph__title"),
