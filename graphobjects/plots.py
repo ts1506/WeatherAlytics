@@ -22,6 +22,7 @@ trenddict={
     '5ptrolling': '5 Point Moving Average',
     'rollmedian': 'Rolling Median',
     'expandmax': 'Expanding Maximum',
+    'expomavg': 'Exponentially-Weighted Moving Average',
 }
 
 def createPlot(data, x_axis, y_axis):
@@ -43,6 +44,8 @@ def createTrendPlot(data, x_axis, y_axis, trend):
         fig = px.scatter(data, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="rolling", trendline_options=dict(function="median", window=5), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
     elif (trend == 'expandmax'):
         fig = px.scatter(data, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="expanding", trendline_options=dict(function="max"), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+    elif (trend == 'expomavg'):
+        fig = px.scatter(data, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="ewm", trendline_options=dict(halflife=2), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
 
     fig.update_layout(title="", plot_bgcolor=app_color["graph_bg"], height=400, paper_bgcolor=app_color["graph_bg"], font=dict(color="White"))
     fig.update_xaxes(title=labeldict["{}".format(x_axis)], showgrid=False, showline=True, zeroline=False, fixedrange=True)

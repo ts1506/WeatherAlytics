@@ -40,6 +40,7 @@ trenddict={
     '5ptrolling': '5 Point Moving Average',
     'rollmedian': 'Rolling Median',
     'expandmax': 'Expanding Maximum',
+    'expomavg': 'Exponentially-Weighted Moving Average',
 }
 
 app = dash.Dash(
@@ -354,6 +355,7 @@ app.layout = html.Div(
                                     {'label': '5-pt Moving Average', 'value': '5ptrolling'},
                                     {'label': 'Rolling Median', 'value': 'rollmedian'},
                                     {'label': 'Expanding Maximum', 'value': 'expandmax'},
+                                    {'label': 'Exponentially-Weighted Moving Average', 'value': 'expomavg'},
                                 ],
                                 value='ols'
                         ),
