@@ -103,7 +103,7 @@ def add_weatherData(reading_time, summary, precip_type, temperature, apparent_te
   try:
     cnx = connect(**config)
     cursor = cnx.cursor()
-    cursor.execute("INSERT INTO weatherHistory(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure) VALUES ({},{},{},{},{},{},{},{},{},{}".format(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure))
+    cursor.execute("INSERT INTO weatherHistory(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure) VALUES ('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure))
 
   except Error as err:
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -113,4 +113,5 @@ def add_weatherData(reading_time, summary, precip_type, temperature, apparent_te
     else:
       print(err)
   else:
+    cnx.commit()
     cnx.close()
