@@ -61,7 +61,7 @@ app.layout = html.Div(
                                 min=100,
                                 max=50000,
                                 step=300,
-                                value=10000,
+                                value=5000,
                                 updatemode="drag",
                                 marks={
                                     100: {"label": "100"},
@@ -77,7 +77,7 @@ app.layout = html.Div(
                                 options=[
                                     {"label": "Show All Data", "value": "Show All"}
                                 ],
-                            value=["Show All"],
+                            value=[],
                             inputClassName="auto__checkbox",
                             labelClassName="auto__label",
                         ),
@@ -166,9 +166,120 @@ app.layout = html.Div(
             ],
             className="app__content2",
         ),
+        html.Div(
+            [
+            html.Div(
+                    [
+                        html.P(
+                            "SELECT AXES BELOW",
+                            className="graph__title",
+                        ),
+                        html.P("X-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="x-axis-dropdown",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='reading_time'
+                        ),
+                        html.P("Y-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="y-axis-dropdown",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='temperature'
+                        ),
+                    ],
+                    className="three columns",
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            [html.H6("USER DEFINED PLOT", className="graph__title")]
+                        ),
+                        dcc.Graph(
+                            id="userdefplot",
+                            figure=dict(
+                                layout=dict(
+                                    plot_bgcolor=app_color["graph_bg"],
+                                    paper_bgcolor=app_color["graph_bg"],
+                                )
+                            ),
+                        ),
+                        dcc.Interval(
+                            id="userdefplot-update",
+                            interval=int(GRAPH_INTERVAL),
+                            n_intervals=0,
+                        ),
+                    ],
+                    className="nine columns userdefplot__container",
+                ),
+            ],
+            className="parameter_selector_content",
+        ),
     ],
     className="app__container",
 )
+
+@app.callback(
+    Output("userdefplot", "figure"), [Input("userdefplot-update", "n_intervals")], [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
+    [
+        State("data-slider", "value"),
+        State("show-all", "value"),
+    ],
+)
+def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
+    
+    if "Show All" in auto_state:
+        df = get_weatherData()
+    else:
+        df = get_weatherData_byCount(slider_value)
+    
+    df = cleanData(df)
+
+    trace = dict(
+        type="scatter",
+        y=df["{}".format(y_axis)],
+        x=df["{}".format(x_axis)],
+        line={"color": app_color["trace"]},
+        mode="markers",
+    )
+
+    layout = dict(
+        plot_bgcolor=app_color["graph_bg"],
+        paper_bgcolor=app_color["graph_bg"],
+        font={"color": "#fff"},
+        height=400,
+        xaxis={
+            "showline": True,
+            "zeroline": False,
+            "fixedrange": True,
+        },
+        yaxis={
+            "showgrid": True,
+            "showline": True,
+            "fixedrange": True,
+            "zeroline": False,
+            "gridcolor": app_color["graph_line"],
+        },
+    )
+
+    return dict(data=[trace], layout=layout)
 
 @app.callback(
     Output("temperature", "figure"), [Input("temperature-update", "n_intervals")],
