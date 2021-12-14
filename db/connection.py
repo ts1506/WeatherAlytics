@@ -67,6 +67,32 @@ def get_weatherData_byCount(n):
   else:
     cnx.close()
 
+def get_weatherData_byYear(n):
+  """
+  Query data for particular year from available weather data from the database
+  Return Type: Pandas Dataframe
+  """
+
+  try:
+    cnx = connect(**config)
+    cursor = cnx.cursor()
+    cursor.execute("select * from weatherHistory where reading_time like '{}%'".format(n))
+    records = cursor.fetchall()
+    
+    df = pd.DataFrame(records)
+    df.columns = cursor.column_names
+    return df
+
+  except Error as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+      print("Something is wrong with your user name or password")
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+      print("Database does not exist")
+    else:
+      print(err)
+  else:
+    cnx.close()
+
 def get_weatherData_bySummary(summary):
   """
   Query all available weather data for defined summary (for eg. Clear, Foggy etc.)
