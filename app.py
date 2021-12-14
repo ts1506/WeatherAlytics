@@ -32,12 +32,20 @@ labeldict={
     'pressure': 'Pressure (hPA)',
 }
 
+trenddict={
+    'ols': 'Ordinary Least Squares',
+    'olslog': 'Ordinary Least Squares (Log Transformed)',
+    '5ptrolling': '5 Point Moving Average',
+    'rollmedian': 'Rolling Median',
+    'expandmax': 'Expanding Maximum',
+}
+
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 app.title = "Weather Dashboard"
-app_color = {"graph_bg": "#252729", "graph_line": "#008019", "trace": "#379C4B"}
+app_color = {"graph_bg": "#252729", "graph_line": "#008019", "trace": "#379C4B", "trend": "#EB4034"}
 
 server = app.server
 
@@ -327,9 +335,124 @@ app.layout = html.Div(
             ],
             className="year_selector_content",
         ),
+        html.Div(
+            [
+            html.Div(
+                    [
+                        html.P(
+                            "Trendlines",
+                            className="graph__title",
+                        ),
+                        html.P("Select Trend", className="graph__title"),
+                        dcc.Dropdown(
+                            id="trend-dropdown",
+                                options=[
+                                    {'label': 'Ordinary Least Squares', 'value': 'ols'},
+                                    {'label': 'OLS (Log Transformed)', 'value': 'olslog'},
+                                    {'label': '5-pt Moving Average', 'value': '5ptrolling'},
+                                    {'label': 'Rolling Median', 'value': 'rollmedian'},
+                                    {'label': 'Expanding Maximum', 'value': 'expandmax'},
+                                ],
+                                value='ols'
+                        ),
+                        html.P("X-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="x-axis-dropdown3",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='reading_time'
+                        ),
+                        html.P("Y-Axis", className="graph__title"),
+                        dcc.Dropdown(
+                            id="y-axis-dropdown3",
+                                options=[
+                                    {'label': 'Reading Time', 'value': 'reading_time'},
+                                    {'label': 'Temperature (C)', 'value': 'temperature'},
+                                    {'label': 'Apparent Temperature (C)', 'value': 'apparent_temperature'},
+                                    {'label': 'Humidity', 'value': 'humidity'},
+                                    {'label': 'Wind Speed (km/h)', 'value': 'wind_speed'},
+                                    {'label': 'Wind Bearing', 'value': 'wind_bearing'},
+                                    {'label': 'Visibility (km)', 'value': 'visibility'},
+                                    {'label': 'Pressure (hPA)', 'value': 'pressure'},
+                                ],
+                                value='temperature'
+                        ),
+                    ],
+                    className="three columns",
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            [html.H6(id="trenddatatext", className="graph__title")]
+                        ),
+                        dcc.Graph(
+                            id="trenddataplot",
+                        ),
+                        dcc.Interval(
+                            id="trenddataplot-update",
+                            interval=int(GRAPH_INTERVAL),
+                            n_intervals=0,
+                        ),
+                    ],
+                    className="nine columns trenddataplot__container",
+                ),
+            ],
+            className="trend_selector_content",
+        ),
     ],
     className="app__container",
 )
+
+@app.callback(
+    Output("trenddatatext", "children"), [Input("trend-dropdown", "value")], [Input("x-axis-dropdown3", "value")], [Input("y-axis-dropdown3", "value")],
+)
+def update_yeardatatext(value, x_axis, y_axis):
+    return "{} Trend for {} vs {}".format(trenddict["{}".format(value)],labeldict["{}".format(y_axis)],labeldict["{}".format(x_axis)])
+
+@app.callback(
+    Output("trenddataplot", "figure"), 
+    [Input("trenddataplot-update", "n_intervals")],
+    [Input("trend-dropdown", "value")], 
+    [Input("x-axis-dropdown3", "value")], 
+    [Input("y-axis-dropdown3", "value")],
+    [
+        State("data-slider", "value"),
+        State("show-all", "value"),
+    ],
+)
+def gen_trenddataplot(interval, trend, x_axis, y_axis, slider_value, auto_state):
+    
+    if "Show All" in auto_state:
+        df = get_weatherData()
+    else:
+        df = get_weatherData_byCount(slider_value)
+
+    df = cleanData(df)
+
+    if (trend == 'ols'):
+        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="ols", title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+    elif (trend == 'olslog'):
+        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="ols", trendline_options=dict(log_x=True), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+    elif (trend == '5ptrolling'):
+        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="rolling", trendline_options=dict(window=5), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+    elif (trend == 'rollmedian'):
+        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="rolling", trendline_options=dict(function="median", window=5), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+    elif (trend == 'expandmax'):
+        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="expanding", trendline_options=dict(function="max"), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
+
+    fig.update_layout(title="", plot_bgcolor=app_color["graph_bg"], height=400, paper_bgcolor=app_color["graph_bg"], font=dict(color="White"))
+    fig.update_xaxes(title=labeldict["{}".format(x_axis)], showgrid=False, showline=True, zeroline=False, fixedrange=True)
+    fig.update_yaxes(title=labeldict["{}".format(y_axis)], showgrid=True, showline=True, fixedrange=True, zeroline=False, gridcolor=app_color["graph_line"])
+    return fig
+
 
 @app.callback(
     Output("yeardatatext", "children"), [Input("year-dropdown", "value")],
