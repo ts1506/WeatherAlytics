@@ -6,7 +6,7 @@ WeatherAlytics is a Python driven IoT Data Visualization platform for meteorolog
 
 ## Project Status
 
-`In Progress 😀`
+`Completed ✅`
 
 ## How to Use
 
