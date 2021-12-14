@@ -9,6 +9,7 @@ import numpy as np
 from dataset.dataCleaning import cleanData
 from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount, get_weatherData_byYear
 import os
+import pickle
 
 import dash
 from dash import dcc
@@ -20,6 +21,9 @@ from dash.dependencies import Input, Output, State
 from graphobjects.plots import createPlot, createTrendPlot
 
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 10000)
+TRAINED_MODEL = "model/weathermodel.pickle"
+with open(TRAINED_MODEL, "rb") as readFile:
+    model = pickle.load(readFile)
 
 pd.options.plotting.backend = 'plotly'
 
@@ -417,9 +421,194 @@ app.layout = html.Div(
             ],
             className="trend_selector_content",
         ),
+        html.Div(
+            [
+            html.Div(
+                    [
+                        html.P(
+                            "Precipitation Prediction",
+                            className="graph__title",
+                        ),
+                        html.P("Temperature (C)", className="graph__title"),
+                        dcc.Slider(
+                            id="temperature-slider",
+                                min=-60,
+                                max=60,
+                                step=5,
+                                value=0,
+                                updatemode="drag",
+                                marks={
+                                    -60: {"label": "-60"},
+                                    -30: {"label": "-30"},
+                                    0: {"label": "0"},
+                                    30: {"label": "30"},
+                                    60: {"label": "60"},
+                                },
+                        ),
+                        html.P("Apparent Temperature (C)", className="graph__title"),
+                        dcc.Slider(
+                            id="app-temperature-slider",
+                                min=-60,
+                                max=60,
+                                step=5,
+                                value=0,
+                                updatemode="drag",
+                                marks={
+                                    -60: {"label": "-60"},
+                                    -30: {"label": "-30"},
+                                    0: {"label": "0"},
+                                    30: {"label": "30"},
+                                    60: {"label": "60"},
+                                },
+                        ),
+                        html.P("Humidity (%)", className="graph__title"),
+                        dcc.Slider(
+                            id="humidity-slider",
+                                min=0,
+                                max=1,
+                                step=0.05,
+                                value=0.5,
+                                updatemode="drag",
+                                marks={
+                                    0: {"label": "0%"},
+                                    0.2: {"label": "20%"},
+                                    0.4: {"label": "40%"},
+                                    0.6: {"label": "60%"},
+                                    0.8: {"label": "80%"},
+                                    1: {"label": "100%"},
+                                },
+                        ),
+                        html.P("Wind Speed (km/h)", className="graph__title"),
+                        dcc.Slider(
+                            id="windspeed-slider",
+                                min=0,
+                                max=25,
+                                step=1,
+                                value=5,
+                                updatemode="drag",
+                                marks={
+                                    0: {"label": "0"},
+                                    5: {"label": "5"},
+                                    10: {"label": "10"},
+                                    15: {"label": "15"},
+                                    20: {"label": "20"},
+                                    25: {"label": "25"},
+                                },
+                        ),
+                    ],
+                    className="three columns",
+                ),
+                html.Div(
+                    [
+                        html.P(
+                            "Parameters (contd.)",
+                            className="graph__title",
+                        ),
+                        html.P("Wind Bearing", className="graph__title"),
+                        dcc.Slider(
+                            id="windbearing-slider",
+                                min=0,
+                                max=360,
+                                step=30,
+                                value=180,
+                                updatemode="drag",
+                                marks={
+                                    0: {"label": "0"},
+                                    60: {"label": "60"},
+                                    120: {"label": "120"},
+                                    180: {"label": "180"},
+                                    240: {"label": "240"},
+                                    300: {"label": "300"},
+                                    360: {"label": "360"},
+                                },
+                        ),
+                        html.P("Visibility (km)", className="graph__title"),
+                        dcc.Slider(
+                            id="visibility-slider",
+                                min=0,
+                                max=25,
+                                step=1,
+                                value=5,
+                                updatemode="drag",
+                                marks={
+                                    0: {"label": "0"},
+                                    5: {"label": "5"},
+                                    10: {"label": "10"},
+                                    15: {"label": "15"},
+                                    20: {"label": "20"},
+                                    25: {"label": "25"},
+                                },
+                        ),
+                        html.P("Pressure (hPa)", className="graph__title"),
+                        dcc.Slider(
+                            id="pressure-slider",
+                                min=950,
+                                max=1050,
+                                step=5,
+                                value=1000,
+                                updatemode="drag",
+                                marks={
+                                    950: {"label": "950"},
+                                    975: {"label": "975"},
+                                    1000: {"label": "1000"},
+                                    1025: {"label": "1025"},
+                                    1050: {"label": "1050"},
+                                },
+                        ),
+                        html.P(
+                            "",
+                            className="graph__title",
+                        ),
+                        html.Button('Run Forecast', id='submit', n_clicks=0, style={'margin-left':'auto', 'margin-right':'auto', 'width':'100%'}),
+                    ],
+                    className="three columns",
+                ),
+                html.Div(
+                    [
+                        
+                        html.Div(
+                            [html.H6("Precipitation Forecast", className="graph__title")]
+                        ),
+                        html.Div(
+                            [html.H6(id="predicttext", className="graph__title")]
+                        )
+                    ],
+                    className="five columns prediction__container",
+                ),
+            ],
+            className="predict_content",
+        ),
     ],
     className="app__container",
 )
+
+@app.callback(
+    Output("predicttext", "children"),
+    [Input("submit", "n_clicks")],
+    [
+        State("temperature-slider", "value"),
+        State("app-temperature-slider", "value"),
+        State("humidity-slider", "value"),
+        State("windspeed-slider", "value"), 
+        State("windbearing-slider", "value"),
+        State("visibility-slider", "value"),
+        State("pressure-slider", "value")
+    ],
+)
+def prediction(n_clicks, temp, app_temp, humidity, windspeed, windbearing, visibility, pressure):
+    if(n_clicks == 0):
+        return "Click the button to run forecasting model"
+    else:
+        inputdata = [temp, app_temp, humidity, windspeed, windbearing, visibility, pressure]
+        columnname = ['Temperature (C)', 'Apparent Temperature (C)', 'Humidity', 'Wind Speed (km/h)', 'Wind Bearing (degrees)', 'Visibility (km)', 'Pressure (millibars)']
+
+        sampleinput = pd.DataFrame(data=[inputdata])
+        sampleinput.columns = columnname
+        prediction = model.predict(sampleinput)
+
+        #Class Label corresponding to trained model 0,1,2
+        labels = ["No Precipitation", "Rainfall", "Snowfall"]
+        return "Based on input data, the prediction is: {}".format(labels[prediction[0]])
 
 @app.callback(
     Output("trenddatatext", "children"), [Input("trend-dropdown", "value")], [Input("x-axis-dropdown3", "value")], [Input("y-axis-dropdown3", "value")],
@@ -549,5 +738,5 @@ def gen_tempVsHumidity(interval, slider_value, auto_state):
     return createPlot(df,"humidity","temperature")
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
