@@ -17,6 +17,8 @@ from dash import html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
+from graphobjects.plots import createPlot, createTrendPlot
+
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 10000)
 
 pd.options.plotting.backend = 'plotly'
@@ -395,6 +397,12 @@ app.layout = html.Div(
                         ),
                         dcc.Graph(
                             id="trenddataplot",
+                            figure=dict(
+                                layout=dict(
+                                    plot_bgcolor=app_color["graph_bg"],
+                                    paper_bgcolor=app_color["graph_bg"],
+                                )
+                            ),
                         ),
                         dcc.Interval(
                             id="trenddataplot-update",
@@ -437,21 +445,7 @@ def gen_trenddataplot(interval, trend, x_axis, y_axis, slider_value, auto_state)
 
     df = cleanData(df)
 
-    if (trend == 'ols'):
-        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="ols", title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
-    elif (trend == 'olslog'):
-        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="ols", trendline_options=dict(log_x=True), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
-    elif (trend == '5ptrolling'):
-        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="rolling", trendline_options=dict(window=5), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
-    elif (trend == 'rollmedian'):
-        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="rolling", trendline_options=dict(function="median", window=5), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
-    elif (trend == 'expandmax'):
-        fig = px.scatter(df, x=x_axis, y=y_axis, color_discrete_sequence=[app_color["trace"]], trendline="expanding", trendline_options=dict(function="max"), title=trenddict["{}".format(trend)], trendline_color_override=app_color["trend"])
-
-    fig.update_layout(title="", plot_bgcolor=app_color["graph_bg"], height=400, paper_bgcolor=app_color["graph_bg"], font=dict(color="White"))
-    fig.update_xaxes(title=labeldict["{}".format(x_axis)], showgrid=False, showline=True, zeroline=False, fixedrange=True)
-    fig.update_yaxes(title=labeldict["{}".format(y_axis)], showgrid=True, showline=True, fixedrange=True, zeroline=False, gridcolor=app_color["graph_line"])
-    return fig
+    return createTrendPlot(df,x_axis,y_axis,trend)
 
 
 @app.callback(
@@ -472,36 +466,7 @@ def gen_yeardataplot(interval, value, x_axis, y_axis):
     df = get_weatherData_byYear(value)
     df = cleanData(df)
 
-    trace = dict(
-        type="scatter",
-        y=df["{}".format(y_axis)],
-        x=df["{}".format(x_axis)],
-        line={"color": app_color["trace"]},
-        mode="markers",
-    )
-
-    layout = dict(
-        plot_bgcolor=app_color["graph_bg"],
-        paper_bgcolor=app_color["graph_bg"],
-        font={"color": "#fff"},
-        height=400,
-        xaxis={
-            "title": labeldict["{}".format(x_axis)],
-            "showline": True,
-            "zeroline": False,
-            "fixedrange": True,
-        },
-        yaxis={
-            "title": labeldict["{}".format(y_axis)],
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": app_color["graph_line"],
-        },
-    )
-
-    return dict(data=[trace], layout=layout)
+    return createPlot(df,x_axis,y_axis)
 
 @app.callback(
     Output("userdeftext", "children"), [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
@@ -525,36 +490,7 @@ def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
     
     df = cleanData(df)
 
-    trace = dict(
-        type="scatter",
-        y=df["{}".format(y_axis)],
-        x=df["{}".format(x_axis)],
-        line={"color": app_color["trace"]},
-        mode="markers",
-    )
-
-    layout = dict(
-        plot_bgcolor=app_color["graph_bg"],
-        paper_bgcolor=app_color["graph_bg"],
-        font={"color": "#fff"},
-        height=400,
-        xaxis={
-            "title": labeldict["{}".format(x_axis)],
-            "showline": True,
-            "zeroline": False,
-            "fixedrange": True,
-        },
-        yaxis={
-            "title": labeldict["{}".format(y_axis)],
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": app_color["graph_line"],
-        },
-    )
-
-    return dict(data=[trace], layout=layout)
+    return createPlot(df,x_axis,y_axis)
 
 @app.callback(
     Output("temperature", "figure"), [Input("temperature-update", "n_intervals")],
@@ -572,36 +508,7 @@ def gen_temperature(interval, slider_value, auto_state):
     
     df = cleanData(df)
 
-    trace = dict(
-        type="scatter",
-        y=df["temperature"],
-        x=df["reading_time"],
-        line={"color": app_color["trace"]},
-        mode="markers",
-    )
-
-    layout = dict(
-        plot_bgcolor=app_color["graph_bg"],
-        paper_bgcolor=app_color["graph_bg"],
-        font={"color": "#fff"},
-        height=400,
-        xaxis={
-            "title": "Reading Time",
-            "showline": True,
-            "zeroline": False,
-            "fixedrange": True,
-        },
-        yaxis={
-            "title": "Temperature",
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": app_color["graph_line"],
-        },
-    )
-
-    return dict(data=[trace], layout=layout)
+    return createPlot(df,"reading_time","temperature")
 
 @app.callback(
     Output("apptempVsHumidity", "figure"), [Input("apptempVsHumidity-update", "n_intervals")],
@@ -619,36 +526,7 @@ def gen_apptempVsHumidity(interval, slider_value, auto_state):
 
     df = cleanData(df)
 
-    trace = dict(
-        type="scatter",
-        y=df["apparent_temperature"],
-        x=df["humidity"],
-        line={"color": app_color["trace"]},
-        mode="markers",
-    )
-
-    layout = dict(
-        plot_bgcolor=app_color["graph_bg"],
-        paper_bgcolor=app_color["graph_bg"],
-        font={"color": "#fff"},
-        height=400,
-        xaxis={
-            "title": "Humidity",
-            "showline": True,
-            "zeroline": False,
-            "fixedrange": True,
-        },
-        yaxis={
-            "title": "Apparent Temperature",
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": app_color["graph_line"],
-        },
-    )
-
-    return dict(data=[trace], layout=layout)
+    return createPlot(df,"humidity","apparent_temperature")
 
 @app.callback(
     Output("tempVsHumidity", "figure"), [Input("tempVsHumidity-update", "n_intervals")],
@@ -666,36 +544,7 @@ def gen_tempVsHumidity(interval, slider_value, auto_state):
 
     df = cleanData(df)
 
-    trace = dict(
-        type="scatter",
-        y=df["temperature"],
-        x=df["humidity"],
-        line={"color": app_color["trace"]},
-        mode="markers",
-    )
-
-    layout = dict(
-        plot_bgcolor=app_color["graph_bg"],
-        paper_bgcolor=app_color["graph_bg"],
-        font={"color": "#fff"},
-        height=400,
-        xaxis={
-            "title": "Humidity",
-            "showline": True,
-            "zeroline": False,
-            "fixedrange": True,
-        },
-        yaxis={
-            "title": "Temperature",
-            "showgrid": True,
-            "showline": True,
-            "fixedrange": True,
-            "zeroline": False,
-            "gridcolor": app_color["graph_line"],
-        },
-    )
-
-    return dict(data=[trace], layout=layout)
+    return createPlot(df,"humidity","temperature")
 
 if __name__ == "__main__":
     app.run_server(debug=False)
