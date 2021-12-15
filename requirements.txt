@@ -1,0 +1,7 @@
+scikit-learn
+dash
+pandas
+numpy
+plotly >= 5.4.0
+pickle
+mysql-connector-python
