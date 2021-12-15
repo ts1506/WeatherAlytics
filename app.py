@@ -6,18 +6,17 @@ import pandas as pd
 import requests
 from datetime import datetime
 import numpy as np
-from dataset.dataCleaning import cleanData
-from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount, get_weatherData_byYear
 import os
 import pickle
-
 import dash
 from dash import dcc
 from dash import html
-
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
+#Custom Imports
+from dataset.dataCleaning import cleanData
+from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount, get_weatherData_byYear
 from graphobjects.plots import createPlot, createTrendPlot
 
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 10000)
