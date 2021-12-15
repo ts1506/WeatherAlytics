@@ -1,26 +1,28 @@
-# install mysql connector before executing this script using following command
-# pip3 install mysql-connector-python
-# The connection string is stored in privatekeys.py, uncomment Line 6 to 12, and remove Line 16 to use your own details.
+# Instructions for DB connection
+"""
+The connection string is stored in privatekeys.py, uncomment Line 6 to 12, and remove Line 18 to use your own details.
 
-# Sample Config
-# config = {
-#   'host': "localhost",
-#   'user': "user",
-#   'password': "password",
-#   'database': 'db1',
-#   'raise_on_warnings': True,
-# }
+Sample Config
+config = {
+  'host': "localhost",
+  'user': "user",
+  'password': "password",
+  'database': 'db1',
+  'raise_on_warnings': True,
+}
+"""
 
+# Standard Imports
 from mysql.connector import connect, errorcode, Error
 import pandas as pd
 from .privatekeys import config
 
 def get_weatherData():
   """
-  Query all available weather data from the database
-  Return Type: Pandas Dataframe
+  API to query data for all available weather data from the database
+  Input: None
+  Output: Pandas Dataframe
   """
-
   try:
     cnx = connect(**config)
     cursor = cnx.cursor()
@@ -43,10 +45,10 @@ def get_weatherData():
 
 def get_weatherData_byCount(n):
   """
-  Query last 'n' available weather data from the database
-  Return Type: Pandas Dataframe
+  API to query data for last 'n' records from available weather data from the database
+  Input: n (Int: count)
+  Output: Pandas Dataframe
   """
-
   try:
     cnx = connect(**config)
     cursor = cnx.cursor()
@@ -69,10 +71,10 @@ def get_weatherData_byCount(n):
 
 def get_weatherData_byYear(n):
   """
-  Query data for particular year from available weather data from the database
-  Return Type: Pandas Dataframe
+  API to query data for particular year from available weather data from the database
+  Input: n (String: year value)
+  Output: Pandas Dataframe
   """
-
   try:
     cnx = connect(**config)
     cursor = cnx.cursor()
@@ -95,8 +97,9 @@ def get_weatherData_byYear(n):
 
 def get_weatherData_bySummary(summary):
   """
-  Query all available weather data for defined summary (for eg. Clear, Foggy etc.)
-  Return Type: Pandas Dataframe
+  API to query all available weather data for defined summary (for eg. Clear, Foggy etc.)
+  Input: summary 
+  Output: Pandas Dataframe
   """
 
   try:
@@ -121,11 +124,10 @@ def get_weatherData_bySummary(summary):
 
 def add_weatherData(reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure):
   """
-  Add weather data to the database
+  API to add new weather data to the database
   Input: reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure
   Return Type: None
   """
-
   try:
     cnx = connect(**config)
     cursor = cnx.cursor()

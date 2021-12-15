@@ -1,4 +1,4 @@
-# Standard imports
+# Standard Imports
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.express as px
@@ -14,7 +14,7 @@ from dash import html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
-#Custom Imports
+# Custom Imports
 from dataset.dataCleaning import cleanData
 from db.connection import get_weatherData, get_weatherData_bySummary, get_weatherData_byCount, get_weatherData_byYear
 from graphobjects.plots import createPlot, createTrendPlot
@@ -26,6 +26,9 @@ with open(TRAINED_MODEL, "rb") as readFile:
 
 pd.options.plotting.backend = 'plotly'
 
+"""
+Define dictionaries for class to label mapping later
+"""
 labeldict={
     'reading_time': 'Reading Time',
     'temperature': 'Temperature (C)',
@@ -46,15 +49,20 @@ trenddict={
     'expomavg': 'Exponentially-Weighted Moving Average',
 }
 
+"""
+Define general properties for the DASH app
+"""
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
 app.title = "Weather Dashboard"
 app_color = {"graph_bg": "#252729", "graph_line": "#008019", "trace": "#379C4B", "trend": "#EB4034"}
-
 server = app.server
 
+"""
+HTML layout for the DASH app
+"""
 app.layout = html.Div(
     [
         # header
@@ -595,6 +603,11 @@ app.layout = html.Div(
     ],
 )
 def prediction(n_clicks, temp, app_temp, humidity, windspeed, windbearing, visibility, pressure):
+    """
+    Function to predict precipitation conditions
+    Input: n_clicks, temp, app_temp, humidity, windspeed, windbearing, visibility, pressure
+    Output: html.Div child text
+    """
     if(n_clicks == 0):
         return "Click the button to run forecasting model"
     else:
@@ -612,7 +625,12 @@ def prediction(n_clicks, temp, app_temp, humidity, windspeed, windbearing, visib
 @app.callback(
     Output("trenddatatext", "children"), [Input("trend-dropdown", "value")], [Input("x-axis-dropdown3", "value")], [Input("y-axis-dropdown3", "value")],
 )
-def update_yeardatatext(value, x_axis, y_axis):
+def update_trenddatatext(value, x_axis, y_axis):
+    """
+    Function to update HTML text for Trend Data Plot
+    Input: value, x_axis, y_axis
+    Output: html.Div child text
+    """
     return "{} Trend for {} vs {}".format(trenddict["{}".format(value)],labeldict["{}".format(y_axis)],labeldict["{}".format(x_axis)])
 
 @app.callback(
@@ -627,7 +645,11 @@ def update_yeardatatext(value, x_axis, y_axis):
     ],
 )
 def gen_trenddataplot(interval, trend, x_axis, y_axis, slider_value, auto_state):
-    
+    """
+    Function to generate Trend Data plots
+    Input: interval, trend, x_axis, y_axis, slider_value, auto_state
+    Output: Plotly.Express Figure
+    """
     if "Show All" in auto_state:
         df = get_weatherData()
     else:
@@ -642,6 +664,11 @@ def gen_trenddataplot(interval, trend, x_axis, y_axis, slider_value, auto_state)
     Output("yeardatatext", "children"), [Input("year-dropdown", "value")],
 )
 def update_yeardatatext(value):
+    """
+    Function to update HTML text for Yearly Data Plot
+    Input: value
+    Output: html.Div child text
+    """
     return "Data for year {}".format(value)
 
 @app.callback(
@@ -652,7 +679,11 @@ def update_yeardatatext(value):
     [Input("y-axis-dropdown2", "value")],
 )
 def gen_yeardataplot(interval, value, x_axis, y_axis):
-    
+    """
+    Function to generate Yearly Data plots
+    Input: interval, value, x_axis, y_axis
+    Output: Plotly.Express Figure
+    """
     df = get_weatherData_byYear(value)
     df = cleanData(df)
 
@@ -662,6 +693,11 @@ def gen_yeardataplot(interval, value, x_axis, y_axis):
     Output("userdeftext", "children"), [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
 )
 def update_userdeftext(x_axis, y_axis):
+    """
+    Function to update HTML text for User Defined Data Plot
+    Input: x_axis, y_axis
+    Output: html.Div child text
+    """
     return "{} VS {}".format(labeldict["{}".format(y_axis)],labeldict["{}".format(x_axis)])
 
 @app.callback(
@@ -672,7 +708,11 @@ def update_userdeftext(x_axis, y_axis):
     ],
 )
 def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
-    
+    """
+    Function to generate User Defined Data plots
+    Input: interval, x_axis, y_axis, slider_value, auto_state
+    Output: Plotly.Express Figure
+    """
     if "Show All" in auto_state:
         df = get_weatherData()
     else:
@@ -690,7 +730,11 @@ def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
     ]
 )
 def gen_temperature(interval, slider_value, auto_state):
-    
+    """
+    Function to generate Temperature vs Reading Time Data plots
+    Input: interval, slider_value, auto_state
+    Output: Plotly.Express Figure
+    """
     if "Show All" in auto_state:
         df = get_weatherData()
     else:
@@ -708,7 +752,11 @@ def gen_temperature(interval, slider_value, auto_state):
     ]
 )
 def gen_apptempVsHumidity(interval, slider_value, auto_state):
-
+    """
+    Function to generate Apparent Temperature vs Humidity Data plots
+    Input: interval, slider_value, auto_state
+    Output: Plotly.Express Figure
+    """
     if "Show All" in auto_state:
         df = get_weatherData()
     else:
@@ -726,7 +774,11 @@ def gen_apptempVsHumidity(interval, slider_value, auto_state):
     ]
 )
 def gen_tempVsHumidity(interval, slider_value, auto_state):
-
+    """
+    Function to generate Temperature vs Humidity Data plots
+    Input: interval, slider_value, auto_state
+    Output: Plotly.Express Figure
+    """
     if "Show All" in auto_state:
         df = get_weatherData()
     else:
