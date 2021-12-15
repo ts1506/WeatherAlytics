@@ -786,5 +786,5 @@ def gen_tempVsHumidity(interval, slider_value, auto_state):
     return createPlot(df,"humidity","temperature")
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
