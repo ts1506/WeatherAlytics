@@ -126,7 +126,7 @@ def add_weatherData(reading_time, summary, precip_type, temperature, apparent_te
   """
   API to add new weather data to the database
   Input: reading_time, summary, precip_type, temperature, apparent_temperature, humidity, wind_speed, wind_bearing, visibility, pressure
-  Return Type: None
+  Output: None
   """
   try:
     cnx = connect(**config)
