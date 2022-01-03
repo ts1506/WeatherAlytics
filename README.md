@@ -4,7 +4,7 @@
 
 WeatherAlytics is a Python driven IoT Data Visualization platform for meteorological data.
 
-Try it out at `https://weatheralytics.herokuapp.com`
+Try it out at [https://weatheralytics.herokuapp.com](https://weatheralytics.herokuapp.com)
 
 ## Project Status
 
