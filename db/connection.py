@@ -1,13 +1,22 @@
 # Instructions for DB connection
 """
-The connection string is stored in privatekeys.py, uncomment Line 6 to 12, and remove Line 18 to use your own details.
+The connection string is stored in privatekeys.py, uncomment Line 6 to 12 / Line 15 to 21, and remove Line 27 to use your own details.
 
-Sample Config
+Sample Config for Custom Deployment
 config = {
   'host': "localhost",
   'user': "user",
   'password': "password",
   'database': 'db1',
+  'raise_on_warnings': True,
+}
+
+Sample Config for Heroku/Azure App Service/Other Cloud deployment
+config = {
+  'host': os.environ['HOST'],
+  'user': os.environ['USER'],
+  'password': os.environ['PASSWORD'],
+  'database': os.environ['DB'],
   'raise_on_warnings': True,
 }
 """
@@ -16,6 +25,7 @@ config = {
 from mysql.connector import connect, errorcode, Error
 import pandas as pd
 from .privatekeys import config
+import os
 
 def get_weatherData():
   """
