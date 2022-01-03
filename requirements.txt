@@ -6,3 +6,4 @@ plotly >= 5.4.0
 mysql-connector-python
 paho-mqtt
 gunicorn
+statsmodels
