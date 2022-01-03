@@ -620,7 +620,10 @@ def prediction(n_clicks, temp, app_temp, humidity, windspeed, windbearing, visib
         return "Based on input data, the prediction is: {}".format(labels[prediction[0]])
 
 @app.callback(
-    Output("trenddatatext", "children"), [Input("trend-dropdown", "value")], [Input("x-axis-dropdown3", "value")], [Input("y-axis-dropdown3", "value")],
+    Output("trenddatatext", "children"), 
+    [Input("trend-dropdown", "value")], 
+    [Input("x-axis-dropdown3", "value")], 
+    [Input("y-axis-dropdown3", "value")],
 )
 def update_trenddatatext(value, x_axis, y_axis):
     """
@@ -658,7 +661,8 @@ def gen_trenddataplot(interval, trend, x_axis, y_axis, slider_value, auto_state)
 
 
 @app.callback(
-    Output("yeardatatext", "children"), [Input("year-dropdown", "value")],
+    Output("yeardatatext", "children"), 
+    [Input("year-dropdown", "value")],
 )
 def update_yeardatatext(value):
     """
@@ -687,7 +691,9 @@ def gen_yeardataplot(interval, value, x_axis, y_axis):
     return createPlot(df,x_axis,y_axis)
 
 @app.callback(
-    Output("userdeftext", "children"), [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
+    Output("userdeftext", "children"), 
+    [Input("x-axis-dropdown", "value")], 
+    [Input("y-axis-dropdown", "value")],
 )
 def update_userdeftext(x_axis, y_axis):
     """
@@ -698,7 +704,10 @@ def update_userdeftext(x_axis, y_axis):
     return "{} VS {}".format(labeldict["{}".format(y_axis)],labeldict["{}".format(x_axis)])
 
 @app.callback(
-    Output("userdefplot", "figure"), [Input("userdefplot-update", "n_intervals")], [Input("x-axis-dropdown", "value")], [Input("y-axis-dropdown", "value")],
+    Output("userdefplot", "figure"), 
+    [Input("userdefplot-update", "n_intervals")], 
+    [Input("x-axis-dropdown", "value")], 
+    [Input("y-axis-dropdown", "value")],
     [
         State("data-slider", "value"),
         State("show-all", "value"),
@@ -720,7 +729,8 @@ def gen_userdefplot(interval, x_axis, y_axis, slider_value, auto_state):
     return createPlot(df,x_axis,y_axis)
 
 @app.callback(
-    Output("temperature", "figure"), [Input("temperature-update", "n_intervals")],
+    Output("temperature", "figure"), 
+    [Input("temperature-update", "n_intervals")],
     [
         State("data-slider", "value"),
         State("show-all", "value"),
@@ -742,7 +752,8 @@ def gen_temperature(interval, slider_value, auto_state):
     return createPlot(df,"reading_time","temperature")
 
 @app.callback(
-    Output("apptempVsHumidity", "figure"), [Input("apptempVsHumidity-update", "n_intervals")],
+    Output("apptempVsHumidity", "figure"), 
+    [Input("apptempVsHumidity-update", "n_intervals")],
     [
         State("data-slider", "value"),
         State("show-all", "value"),
@@ -764,7 +775,8 @@ def gen_apptempVsHumidity(interval, slider_value, auto_state):
     return createPlot(df,"humidity","apparent_temperature")
 
 @app.callback(
-    Output("tempVsHumidity", "figure"), [Input("tempVsHumidity-update", "n_intervals")],
+    Output("tempVsHumidity", "figure"), 
+    [Input("tempVsHumidity-update", "n_intervals")],
     [
         State("data-slider", "value"),
         State("show-all", "value"),
